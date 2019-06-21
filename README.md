@@ -3,7 +3,7 @@
 **File Overview:**     
 1.) Data Collection 
 * AlphaVantageReader.py: Reads data from [AlphaVantage](https://www.alphavantage.co/)
-* BlsReader.py: Scrapes data from text files published by the [Bureau of Labor and Statistics](https://www.bls.gov/)
+* BlsReader.py: Scrapes data from text files published by the [Bureau of Labor Statistics](https://www.bls.gov/)
 * QuandlReader.py: Reads data from [Quandl](https://www.quandl.com/)
 * MasterDataCollection.py: Has methods to get all data from all sources.
 
