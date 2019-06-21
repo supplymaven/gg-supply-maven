@@ -1,11 +1,10 @@
 import quandl
 import datetime
 
-# quandl.ApiConfig.api_version = '2015-04-09'
-
 
 
 class QuandlReader:
+	
 	def __init__(self):
 		'''
 		Sets api key upon initialization
@@ -13,7 +12,7 @@ class QuandlReader:
 		quandl.ApiConfig.api_key = 'd-LyarSr8s9xzyQ7qoqG'
 		self.now = datetime.datetime.now()
 		self.funcKeys = {'QuandlGold': self.getGold, 'QuandlWTICrude': self.getWtiCrudeOil}
-		#the available commodities maps the unique identifier to local Id
+		#the available commodities maps the global id to local id
 		self.availableCommodities = {'QuandlGold': 'Gold', 'QuandlWTICrude':'WTI Crude Oil'}
 
 	def getGold(self):
@@ -45,8 +44,6 @@ class QuandlReader:
 			final[fin] = float(series[s])
 		return final
 
-	# def get
-
 
 	def getData(self, commodities):
 		'''
@@ -59,11 +56,4 @@ class QuandlReader:
 
 
 
-# q = QuandlReader()
-# selected = ['Gold', 'WTI Crude Oil']
-# # oil = q.getWtiCrudeOil()
-# # print(oil)
-
-# d = q.getData(selected)
-# print(d['Gold'])
 

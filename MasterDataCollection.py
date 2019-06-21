@@ -9,8 +9,14 @@ class MasterDataCollection:
 	def __init__(self):
 		self.MasterPrices = {}
 		self.CodeToNames = {}
-		self.NamesToCode = {}
 	
+	def collectBls(self, pagecodes):
+		bls = BlsReader()
+		for pagecode in pagecodes:
+			bls.storePriceInfo(pagecode) 
+			bls.mapSeriesToName(pagecode)
+		self.MasterPrices.update(bls.masterDict)
+		self.CodeToNames.update(bls.seriesName)
 	def collectAllBls(self):
 		bls = BlsReader()
 		for pagecode in ['wp', 'nd', 'pc', 'pd', 'wd']:

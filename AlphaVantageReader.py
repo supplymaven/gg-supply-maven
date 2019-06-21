@@ -3,15 +3,6 @@ import json
 
 
 
-# baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=MSFT&apikey=D3V05J5VFISOLEIH'
-# function = 'TIME_SERIES_MONTHLY'
-# symbol = 'MSFT'
-# apikey = 
-# url = baseUrl + 'function=' + function + '&' + 'symbol' + symbol + '&' + 'apikey=' + apikey
-
-# response = requests.get(baseUrl)
-# dataDict = json.loads(response.text)
-
 class AlphaVantageReader:
 
 	def __init__(self):
@@ -48,12 +39,6 @@ class AlphaVantageReader:
 		return majorIndices
 
 
-			
-
-
-# a = AlphaVantageReader()
-# x = a.getEquity('DJI', 'TIME_SERIES_MONTHLY')
-# print(x)
 
 
 
