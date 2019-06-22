@@ -126,16 +126,12 @@ class BlsReader:
 			year = x[1]
 			month = x[2][-2:]
 			value = float(x[3])
-
-			if name in d:
-				d[name][month + '/' + year] = value
-			else:
-				d[name] = {}
-				d[name][month + '/' + year] = value
-		
-
-			
-
+			if month != '13':
+				if name in d:
+					d[name][month + '/' + year] = value
+				else:
+					d[name] = {}
+					d[name][month + '/' + year] = value
 
 
 
