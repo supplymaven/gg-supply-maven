@@ -16,9 +16,6 @@ class BlsReader:
 		self.masterDict = {}
 		self.seriesName = {}
 		self.availableData = {'ENTER': 'DENTER'}
-		self.pagecodes = {'wp': 'Bls Producer Price Index - Commodities', 'pc': 'Bls Producer Price Index - Current Series',
-		'cu': 'Bls Consumer Price Index-All Urban Consumers', 'ap': 'Average Price Data'}
-
 
 	def storePriceInfo(self, pagecode):
 		'''
@@ -126,10 +123,4 @@ class BlsReader:
 				else:
 					d[name] = {}
 					d[name][month + '/' + year] = float(value)
-
-
-
-	
-
-	
 

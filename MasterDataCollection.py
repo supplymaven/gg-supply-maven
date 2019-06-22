@@ -17,7 +17,7 @@ class MasterDataCollection:
 		bls = BlsReader()
 		for pagecode in pagecodes:
 			bls.storePriceInfo(pagecode) 
-			# bls.mapSeriesToName(pagecode)
+			bls.mapSeriesToName(pagecode)
 		self.MasterPrices.update(bls.masterDict)
 		self.CodeToNames.update(bls.seriesName)
 	def collectAllBls(self):
@@ -46,20 +46,14 @@ class MasterDataCollection:
 		data = self.MasterPrices
 		names = self.CodeToNames
 		new = {}
+		newnames = {}
 		missing_data = set()
 		for i in data:
 			dates = list(data[i].keys())
 			if self.isRecent(dates):
 				new[i] = data[i]
-			else:
-				missing_data.add(i[3:])
-
-		#If a code in the name dictionary isnt in the valid data, remove it.
-		newnames = {}
-		for code in names:
-			if code not in missing_data:
-				newnames[code] = names[code]
-
+				newnames[i] = names[i]
+		
 		#update master dictionary
 		self.MasterPrices = new
 		self.CodeToNames = newnames
