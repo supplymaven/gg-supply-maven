@@ -6,7 +6,9 @@ import datetime
 
 
 class MasterDataCollection:
-
+	'''
+	Class contains methods that can collect all SupplyMaven pricing data
+	'''
 	def __init__(self):
 		self.MasterPrices = {}
 		self.CodeToNames = {}
@@ -15,12 +17,12 @@ class MasterDataCollection:
 		bls = BlsReader()
 		for pagecode in pagecodes:
 			bls.storePriceInfo(pagecode) 
-			bls.mapSeriesToName(pagecode)
+			# bls.mapSeriesToName(pagecode)
 		self.MasterPrices.update(bls.masterDict)
 		self.CodeToNames.update(bls.seriesName)
 	def collectAllBls(self):
 		bls = BlsReader()
-		for pagecode in ['wp', 'nd', 'pc', 'pd', 'wd']:
+		for pagecode in ['wp', 'pc', 'cu', 'ap']:
 			bls.storePriceInfo(pagecode) 
 			bls.mapSeriesToName(pagecode)
 		self.MasterPrices.update(bls.masterDict)
@@ -96,3 +98,4 @@ class MasterDataCollection:
 		if counter < 72:
 			return False
 		return True
+

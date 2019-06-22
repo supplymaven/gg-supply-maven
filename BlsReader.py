@@ -16,6 +16,8 @@ class BlsReader:
 		self.masterDict = {}
 		self.seriesName = {}
 		self.availableData = {'ENTER': 'DENTER'}
+		self.pagecodes = {'wp': 'Bls Producer Price Index - Commodities', 'pc': 'Bls Producer Price Index - Current Series',
+		'cu': 'Bls Consumer Price Index-All Urban Consumers', 'ap': 'Average Price Data'}
 
 
 	def storePriceInfo(self, pagecode):
@@ -23,7 +25,7 @@ class BlsReader:
 		Gets all time series data for the repository
 		parameter is file which determines the save location for the output
 		'''
-		# doc = urlopen(self.repo + pagecode)
+		print(self.repo + pagecode)
 		doc = urlopen(self.repo + pagecode)
 		soup = BeautifulSoup(doc, "lxml")
 		repoLinks = soup.find_all('a')
@@ -65,41 +67,33 @@ class BlsReader:
 		for i in repoLinks:
 			link = 'https://download.bls.gov' + i.get('href')
 			
-			if self.containsSeriesInfo(link):
+			if self.containsSeriesInfo(link, pagecode):
 				newDoc = urlopen(link)
 				txt = BeautifulSoup(newDoc, "lxml").get_text()
-				self.storeName(txt)
+				self.storeSeriesFileName(txt, pagecode)
 		print("Successfully mapped series ids to names.")
 				
-
-	def storeName(self, text):
-		
+	
+	def storeSeriesFileName(self, text, pagecode):
 		d = self.seriesName
 		reader = csv.reader(text.splitlines())
 		title = next(reader)
+		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3}
 		for line in reader:
-			info = []
-			for i in line:
-				info = info + i.split()
-		
-			industry_code = info[0]
-			product_code = info[1]
-			product_name_list = info[2:]
-			product_name = product_name_list[0]
-			for word in product_name_list[1:]:
+			newl = ''
+			for string in line:
+				newl = newl + string
+			info = newl.split('\t')
+			Id = info[0].strip()
+			index = pcSeriesIndex[pagecode]
+			series_title = info[index]
+			d[Id] = series_title
 
-				product_name += ' ' + word
-
-			d[industry_code + product_code] = product_name
-
-
-	def containsSeriesInfo(self, link):
+	def containsSeriesInfo(self, link, pc):
 		'''
 		Checks if link contains timeseries info
 		'''
-		if link[-7:] == 'product':
-			return True
-		if link[-4:] == 'item':
+		if link[-6:] == 'series':
 			return True
 		return False
 	
@@ -125,13 +119,13 @@ class BlsReader:
 			name = x[0]
 			year = x[1]
 			month = x[2][-2:]
-			value = float(x[3])
-			if month != '13':
+			value = x[3]
+			if month != '13' and value != '-':
 				if name in d:
-					d[name][month + '/' + year] = value
+					d[name][month + '/' + year] = float(value)
 				else:
 					d[name] = {}
-					d[name][month + '/' + year] = value
+					d[name][month + '/' + year] = float(value)
 
 
 

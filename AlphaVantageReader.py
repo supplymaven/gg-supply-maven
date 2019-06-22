@@ -37,9 +37,3 @@ class AlphaVantageReader:
 		for symbol in self.MasterAVNamesSM:
 			majorIndices[symbol] = self.getEquity(symbol, 'TIME_SERIES_MONTHLY')
 		return majorIndices
-
-
-
-
-
-
