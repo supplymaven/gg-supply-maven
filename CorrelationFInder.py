@@ -1,14 +1,18 @@
 import json
 import matplotlib.pyplot as plt
 import numpy
-from QuandlReader import QuandlReader
+
 numpy.seterr(invalid='ignore')
 
-with open('data/pricedictionary.json', 'r') as f:
-	bls = json.load(f)
+
+with open('jsondata/allcleandata.json','r') as f:
+    data = f.read()
+
+allcleandata = json.loads(data)
 
 
-class correlationFinder:
+
+class CorrelationFinder:
 	
 	def __init__(self, data):
 		self.prices = data
@@ -45,38 +49,6 @@ class correlationFinder:
 			returns.append(r)
 		return returns
 
-	def blsReturnVector(self, commodity, start_month, end_month):
-		'''
-		given a price index (PPI, CPI) this computes the return vector giving
-		the change in prices year to year.
-		'''
-		values = []
-		if start_month in self.prices[commodity]:
-			append = False
-		else:
-			append = True
-
-		#Normalize all dates to begin with the start month and end with the end month
-		for month in self.prices[commodity]:
-			if month == start_month:
-				append = True
-			if append:
-				if month[:2] != '13':
-					
-					values.append(self.prices[commodity][month])
-					
-			if month == end_month:
-				append = False
-		
-		returns = []
-		for i in range(1,len(values)):
-			val1 = values[i]
-			val2 = values[i-1]
-			r = (val1-val2)/100.0
-			returns.append(r)
-		return returns
-
-
 
 	def find_correlation(self, id_1, id_2, start, end, plot = False):
 		'''returns correlation between two vectors 
@@ -87,8 +59,8 @@ class correlationFinder:
 		id2_dict = self.prices[id_2]
 
 		
-		id1returns = gen_return_vector(id_1, start, end)
-		id2returns = gen_return_vector(id_2, start, end)
+		id1returns = self.gen_return_vector(id_1, start, end)
+		id2returns = self.gen_return_vector(id_2, start, end)
 
 
 		if plot:
@@ -154,12 +126,12 @@ class correlationFinder:
 		'''returns asset correlation between two commodities. If there
 		is missing data, returns "Missing Data" '''
 		
-		id1start, id1end = start_and_end(id1)
-		id2start, id2end = start_and_end(id2)
-		start = start_find(id1start, id2start)
-		end = end_find(id1end, id2end)
+		id1start, id1end = self.start_and_end(id1)
+		id2start, id2end = self.start_and_end(id2)
+		start = self.start_find(id1start, id2start)
+		end = self.end_find(id1end, id2end)
 		
-		coeff = find_correlation(id1, id2, start, end, plot = False)
+		coeff = self.find_correlation(id1, id2, start, end, plot = False)
 		if coeff != 'Missing Data':
 			return float(coeff)
 		else:
@@ -171,7 +143,6 @@ class correlationFinder:
 		   returns a list of 5 tuples with id in index 0 and correlation in index 1
 		   if varied_ind is set to true, all 5 commodities will be from separate 
 		   industries.'''
-
 		f_ids = set()
 		ind1 = series_id[3:6]
 		inds = {ind1}
@@ -181,7 +152,7 @@ class correlationFinder:
 			best_correlation = 0
 			for id2 in self.prices:
 				
-				corr = asset_correlation(series_id, id2)
+				corr = self.asset_correlation(series_id, id2)
 				industry = id2[3:6]
 				if id2 not in f_ids:
 					if corr != 'Missing Data' and series_id != id2:
@@ -198,35 +169,8 @@ class correlationFinder:
 							else:
 								best_correlation = corr
 								best_id = id2
-			inds.add(best_ind)
+			# inds.add(best_ind)
 			f_ids.add(best_id)
 			found.append((best_id, best_correlation))
 		return found
-		
-# f = best_correlations('PCU1133--1133--', varied_ind = True)
-
-
-selected = ['Gold', 'WTI Crude Oil']
-data = QuandlReader()
-dataDict = data.getData(selected)
-dataDict.update(bls)
-F = correlationFinder(dataDict)
-print(F.prices)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

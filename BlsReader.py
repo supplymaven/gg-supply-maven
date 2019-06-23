@@ -45,13 +45,6 @@ class BlsReader:
 		print('Download is complete. Length of dictionary is ' + str(len(self.masterDict)) + ' entries.')
 		
 
-	def saveTimeSeriesToFile(self, file):
-		'''
-		Once desired information is stored, save the master database to a file.
-		'''
-		with open(file,"w") as f:
-			json.dump(self.masterDict, f)
-
 	def mapSeriesToName(self, pagecode):
 		'''
 		Retrieves data for the information about series

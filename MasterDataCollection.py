@@ -34,13 +34,13 @@ class MasterDataCollection:
 		self.MasterPrices.update(qdlData)
 		self.CodeToNames.update(qdl.availableCommodities)
 
-	def collectAllStockIndices(self):
+	def collectAllAlphaVantage(self):
 		av = AlphaVantageReader()
 		indices = av.getMajorIndicesMonthly()
 		self.MasterPrices.update(indices)
 		self.CodeToNames.update(av.MasterAVNamesSM)
 
-	def cleanBlsData(self):
+	def cleanData(self):
 		#WE WANT AT LEAST 6 years of continuous recent data
 		print('CLEANING DATA...')
 		data = self.MasterPrices
@@ -92,4 +92,6 @@ class MasterDataCollection:
 		if counter < 72:
 			return False
 		return True
+
+	
 
