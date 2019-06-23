@@ -1,15 +1,9 @@
 import json
 import matplotlib.pyplot as plt
 import numpy
+import time
 
 numpy.seterr(invalid='ignore')
-
-
-with open('jsondata/allcleandata.json','r') as f:
-    data = f.read()
-
-allcleandata = json.loads(data)
-
 
 
 class CorrelationFinder:
@@ -19,6 +13,43 @@ class CorrelationFinder:
 
 	
 	def gen_return_vector(self, commodity, start_month, end_month):
+		'''
+		Decides if bls data or not and runs appropriate function
+		'''
+		dataType = commodity[:2]
+		PPIData = {'CU', 'PC', 'WP'}
+		if dataType in PPIData:
+			return self.blsReturnVector(commodity, start_month, end_month)
+		else:
+			return self.priceReturnVector(commodity, start_month, end_month)
+
+	def blsReturnVector(self, commodity, start_month, end_month):
+		values = []
+		if start_month in self.prices[commodity]:
+			append = False
+		else:
+			append = True
+
+		#Normalize all dates to begin with the start month and end with the end month
+		for month in self.prices[commodity]:
+			if month == start_month:
+				append = True
+			if append:
+				values.append(self.prices[commodity][month])
+					
+			if month == end_month:
+				append = False
+		
+		returns = []
+		for i in range(1,len(values)):
+			val1 = values[i]
+			val2 = values[i-1]
+			r = ((val1-val2)/val1)*100
+			returns.append(r)
+		return returns
+
+		
+	def priceReturnVector(self, commodity, start_month, end_month):
 		'''given a price vector, start month, and end month
 		this creates a vector of returns 
 		by computing the percent change in each data entry'''
@@ -34,9 +65,8 @@ class CorrelationFinder:
 			if month == start_month:
 				append = True
 			if append:
-				if month[:2] != '13':
-					
-					values.append(self.prices[commodity][month])
+				
+				values.append(self.prices[commodity][month])
 					
 			if month == end_month:
 				append = False
@@ -45,23 +75,21 @@ class CorrelationFinder:
 		for i in range(1,len(values)):
 			val1 = values[i]
 			val2 = values[i-1]
-			r = (val1-val2)/100.0
+			# print(val1,val2)
+			try:
+				r = ((val1-val2)/val2)*100
+			except:
+				#when val2 is zero
+				r = 1000
 			returns.append(r)
 		return returns
 
 
-	def find_correlation(self, id_1, id_2, start, end, plot = False):
+	def find_correlation(self, id1returns, id2returns, start, end, plot = False):
 		'''returns correlation between two vectors 
 		of data specified by a given start and end month'''
 		
 		#find vector of self.prices between these two months
-		id1_dict = self.prices[id_1]
-		id2_dict = self.prices[id_2]
-
-		
-		id1returns = self.gen_return_vector(id_1, start, end)
-		id2returns = self.gen_return_vector(id_2, start, end)
-
 
 		if plot:
 			plt.plot(id1returns, id2returns, 'ro')
@@ -130,47 +158,53 @@ class CorrelationFinder:
 		id2start, id2end = self.start_and_end(id2)
 		start = self.start_find(id1start, id2start)
 		end = self.end_find(id1end, id2end)
+
+		id1_dict = self.prices[id1]
+		id1returns = self.gen_return_vector(id1, start, end)
 		
-		coeff = self.find_correlation(id1, id2, start, end, plot = False)
+		id2_dict = self.prices[id2]
+		id2returns = self.gen_return_vector(id2, start, end)
+
+		
+		coeff = self.find_correlation(id1returns, id2returns, start, end, plot = False)
 		if coeff != 'Missing Data':
 			return float(coeff)
 		else:
 			return 'Missing Data'
 
 
-	def best_correlations(self, series_id, varied_ind = False):
-		'''find the 5 best correlations between an id and the other data points
-		   returns a list of 5 tuples with id in index 0 and correlation in index 1
-		   if varied_ind is set to true, all 5 commodities will be from separate 
-		   industries.'''
+	def best_correlations(self, series_id):
+		'''
+		find the 5 best correlations between an id and the other data points
+		returns a list of 5 tuples with id in index 0 and correlation in index 1
+		'''
 		f_ids = set()
 		ind1 = series_id[3:6]
 		inds = {ind1}
 		found = []
 
-		while len(found) < 5:
-			best_correlation = 0
-			for id2 in self.prices:
-				
+		correlations = {}
+		#first find all correlations
+		for id2 in self.prices:
+			if id2 != series_id:
 				corr = self.asset_correlation(series_id, id2)
-				industry = id2[3:6]
-				if id2 not in f_ids:
-					if corr != 'Missing Data' and series_id != id2:
+				correlations[id2] = corr
+		
 
-						if abs(corr) >= best_correlation:
-							#if specified to vary the industry, will only search through data that represents
-							#a different industry
-							if varied_ind:
-								if industry not in inds:
-									best_correlation = corr
-									best_id = id2
-									best_ind = industry
-									
-							else:
-								best_correlation = corr
-								best_id = id2
-			# inds.add(best_ind)
-			f_ids.add(best_id)
-			found.append((best_id, best_correlation))
+		while len(found) < 5:
+			bestcorr = 0
+			best_series = str()
+			for Id in correlations:
+				if Id not in f_ids:
+					corr = correlations[Id]
+					if corr != 'Missing Data':
+						if abs(corr) > bestcorr:
+							bestcorr = correlations[Id]
+							best_series = Id
+			
+			found.append((best_series,bestcorr))
+			f_ids.add(best_series)
+
 		return found
+
 
