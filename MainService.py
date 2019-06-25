@@ -18,12 +18,17 @@ class MainService:
 		# self.TimeSeries = data
 		self.Ids = m.CodeToNames
 		# self.Ids = names
+		
+		
+		
+		self.correlator = CorrelationFinder(self.TimeSeries)
+		print('Correlator initialized.')
+	def updateAllData(self):
+
+
 		print('---'*25)
 		print('Data Collection Succesful.')
 		print('TimeSeries dictionary has ' + str(len(self.TimeSeries)) + ' entries.')
-		self.correlator = CorrelationFinder(self.TimeSeries)
-		print('Correlator initialized.')
-
 	def queryNames(self, word):
 		'''
     	Returns set of names likely to be relevant to the user
@@ -36,6 +41,13 @@ class MainService:
 			for adjustment in adjustments:
 				if adjustment in words:
 					matches.add(names[Id])
+					break
+				else:
+					for word in words:
+						if adjustment in word:
+							matches.add(names[Id])
+							break
+
 		return matches
 
 	def getIdFromName(self, series_title):
