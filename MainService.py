@@ -26,7 +26,7 @@ class MainService:
 		'''
 		print('Updating all data...')
 		# self.MasterData.collectAllBls()
-		self.MasterData.collectBls(['ap'])
+		self.MasterData.collectBls(['pc'])
 		self.MasterData.cleanData()
 		self.MasterData.collectAllQuandl()
 		self.MasterData.collectAllAlphaVantage()
@@ -130,4 +130,3 @@ class MainService:
 	def saveIdsToFile(self, filename):
 		with open(filename, "w") as f:
 			json.dump(self.MasterData.CodeToNames, f)
-
