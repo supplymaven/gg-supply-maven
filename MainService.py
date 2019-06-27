@@ -25,7 +25,8 @@ class MainService:
 		the correlator with that data.
 		'''
 		print('Updating all data...')
-		self.MasterData.collectAllBls()
+		# self.MasterData.collectAllBls()
+		self.MasterData.collectBls(['ap'])
 		self.MasterData.cleanData()
 		self.MasterData.collectAllQuandl()
 		self.MasterData.collectAllAlphaVantage()
@@ -39,10 +40,10 @@ class MainService:
 		'''
 		For testing, reads from constant files
 		'''
-		with open('jsondata/allcleandata.json','r') as f: 
+		with open('testingdata/MOCKallcleandata.json','r') as f: 
 		    data = f.read()
 		    allCleanData = json.loads(data)
-		with open('jsondata/allcleannames.json','r') as f:
+		with open('testingdata/MOCKallcleannames.json','r') as f:
 		    data = f.read()
 		    allCleanNames = json.loads(data)
 		print('Getting Mock data...')
@@ -129,3 +130,4 @@ class MainService:
 	def saveIdsToFile(self, filename):
 		with open(filename, "w") as f:
 			json.dump(self.MasterData.CodeToNames, f)
+
