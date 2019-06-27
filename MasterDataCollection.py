@@ -22,7 +22,7 @@ class MasterDataCollection:
 		self.CodeToNames.update(bls.seriesName)
 	def collectAllBls(self):
 		bls = BlsReader()
-		for pagecode in ['wp', 'pc', 'cu', 'ap']:
+		for pagecode in ['wp', 'pc', 'cu', 'ap', 'ei']:
 			bls.storePriceInfo(pagecode) 
 			bls.mapSeriesToName(pagecode)
 		self.MasterPrices.update(bls.masterDict)
@@ -93,5 +93,5 @@ class MasterDataCollection:
 			return False
 		return True
 
-	
+		
 

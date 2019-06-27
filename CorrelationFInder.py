@@ -75,7 +75,6 @@ class CorrelationFinder:
 		for i in range(1,len(values)):
 			val1 = values[i]
 			val2 = values[i-1]
-			# print(val1,val2)
 			try:
 				r = ((val1-val2)/val2)*100
 			except:
@@ -173,10 +172,12 @@ class CorrelationFinder:
 			return 'Missing Data'
 
 
-	def best_correlations(self, series_id):
+	def best_correlations(self, series_id, varied_ind = False):
 		'''
 		find the 5 best correlations between an id and the other data points
 		returns a list of 5 tuples with id in index 0 and correlation in index 1
+		varied_ind parameter decides whether to have an assortment of industries 
+		or not. Ensures a variety of industries are representes.
 		'''
 		f_ids = set()
 		ind1 = series_id[3:6]
@@ -195,7 +196,18 @@ class CorrelationFinder:
 			bestcorr = 0
 			best_series = str()
 			for Id in correlations:
-				if Id not in f_ids:
+
+				if varied_ind:
+					ind = Id[3:6]
+					corr = correlations[Id]
+					if corr != 'Missing Data':
+						if abs(corr) > bestcorr:
+							if ind not in inds:
+								bestcorr = correlations[Id]
+								best_series = Id
+								inds.add(ind)
+
+				elif Id not in f_ids:
 					corr = correlations[Id]
 					if corr != 'Missing Data':
 						if abs(corr) > bestcorr:

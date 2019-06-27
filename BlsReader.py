@@ -68,7 +68,7 @@ class BlsReader:
 		d = self.seriesName
 		reader = csv.reader(text.splitlines())
 		title = next(reader)
-		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3}
+		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3, 'ei':5}
 		for line in reader:
 			newl = ''
 			for string in line:
