@@ -5,13 +5,11 @@ import time
 
 numpy.seterr(invalid='ignore')
 
-
 class CorrelationFinder:
 	
 	def __init__(self, data):
 		self.prices = data
 
-	
 	def gen_return_vector(self, commodity, start_month, end_month):
 		'''
 		Decides if bls data or not and runs appropriate function
@@ -29,14 +27,13 @@ class CorrelationFinder:
 			append = False
 		else:
 			append = True
-
+		
 		#Normalize all dates to begin with the start month and end with the end month
 		for month in self.prices[commodity]:
 			if month == start_month:
 				append = True
 			if append:
-				values.append(self.prices[commodity][month])
-					
+				values.append(self.prices[commodity][month])		
 			if month == end_month:
 				append = False
 		
@@ -48,7 +45,6 @@ class CorrelationFinder:
 			returns.append(r)
 		return returns
 
-		
 	def priceReturnVector(self, commodity, start_month, end_month):
 		'''given a price vector, start month, and end month
 		this creates a vector of returns 
@@ -65,9 +61,7 @@ class CorrelationFinder:
 			if month == start_month:
 				append = True
 			if append:
-				
-				values.append(self.prices[commodity][month])
-					
+				values.append(self.prices[commodity][month])	
 			if month == end_month:
 				append = False
 		
@@ -83,30 +77,17 @@ class CorrelationFinder:
 			returns.append(r)
 		return returns
 
-
-	def find_correlation(self, id1returns, id2returns, start, end, plot = False):
+	def find_correlation(self, id1returns, id2returns, start, end):
 		'''returns correlation between two vectors 
 		of data specified by a given start and end month'''
-		
-		#find vector of self.prices between these two months
-
-		if plot:
-			plt.plot(id1returns, id2returns, 'ro')
-			plt.show()
-
-		#Ensure that the correlation is over a period of reasonable length
 		if len(id1returns) == len(id2returns) and len(id1returns) > 48:
-			
 			coefficient = numpy.corrcoef(id1returns, id2returns)[0][1]
-
 			return coefficient
 		else:
 			return 'Missing Data'	
 
-		
 	def start_and_end(self, series_id):
-		'''returns start and end of both ids as given by the excel file'''
-		
+		'''returns start and end of both ids as given by the file'''
 		iddates = list(self.prices[series_id].keys())
 		start = iddates[0]
 		end = iddates[-1]
@@ -144,11 +125,8 @@ class CorrelationFinder:
 			end = end1
 		else:
 			end = end2
-
 		return end
 
-
-		
 	def asset_correlation(self, id1, id2):
 		'''returns asset correlation between two commodities. If there
 		is missing data, returns "Missing Data" '''
@@ -157,46 +135,39 @@ class CorrelationFinder:
 		id2start, id2end = self.start_and_end(id2)
 		start = self.start_find(id1start, id2start)
 		end = self.end_find(id1end, id2end)
-
 		id1_dict = self.prices[id1]
 		id1returns = self.gen_return_vector(id1, start, end)
-		
 		id2_dict = self.prices[id2]
 		id2returns = self.gen_return_vector(id2, start, end)
-
+		coeff = self.find_correlation(id1returns, id2returns, start, end)
 		
-		coeff = self.find_correlation(id1returns, id2returns, start, end, plot = False)
 		if coeff != 'Missing Data':
 			return float(coeff)
 		else:
 			return 'Missing Data'
-
 
 	def best_correlations(self, series_id, varied_ind = False):
 		'''
 		find the 5 best correlations between an id and the other data points
 		returns a list of 5 tuples with id in index 0 and correlation in index 1
 		varied_ind parameter decides whether to have an assortment of industries 
-		or not. Ensures a variety of industries are representes.
+		or not and ensures a variety of industries are represented.
 		'''
 		f_ids = set()
 		ind1 = series_id[3:6]
 		inds = {ind1}
 		found = []
-
 		correlations = {}
-		#first find all correlations
+
 		for id2 in self.prices:
 			if id2 != series_id:
 				corr = self.asset_correlation(series_id, id2)
 				correlations[id2] = corr
 		
-
 		while len(found) < 5:
 			bestcorr = 0
 			best_series = str()
 			for Id in correlations:
-
 				if varied_ind:
 					ind = Id[3:6]
 					corr = correlations[Id]
@@ -206,17 +177,12 @@ class CorrelationFinder:
 								bestcorr = correlations[Id]
 								best_series = Id
 								inds.add(ind)
-
 				elif Id not in f_ids:
 					corr = correlations[Id]
 					if corr != 'Missing Data':
 						if abs(corr) > bestcorr:
 							bestcorr = correlations[Id]
 							best_series = Id
-			
 			found.append((best_series,bestcorr))
 			f_ids.add(best_series)
-
 		return found
-
-

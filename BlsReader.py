@@ -28,47 +28,40 @@ class BlsReader:
 		repoLinks = soup.find_all('a')
 		counter = 0
 		numlinks = str(len(repoLinks))
+		
 		for i in repoLinks:
 			counter += 1
 			link = 'https://download.bls.gov' + i.get('href')
-			
 			print('File ' + str(counter) + '/' 
 				+ numlinks + ': ' + link)
-
 			if self.containsTimeSeriesData(link):
 				newDoc = urlopen(link)
 				txt = BeautifulSoup(newDoc, "lxml").get_text()
 				self.store(txt)
-			else:
-				print('No timeseries data')
-
 		print('Download is complete. Length of dictionary is ' + str(len(self.masterDict)) + ' entries.')
 		
-
 	def mapSeriesToName(self, pagecode):
 		'''
-		Retrieves data for the information about series
+		Retrieves data for the series name
 		'''
-		
 		doc = urlopen(self.repo + pagecode)
 		soup = BeautifulSoup(doc, "lxml")
 		repoLinks = soup.find_all('a')
 
 		for i in repoLinks:
 			link = 'https://download.bls.gov' + i.get('href')
-			
 			if self.containsSeriesInfo(link, pagecode):
 				newDoc = urlopen(link)
 				txt = BeautifulSoup(newDoc, "lxml").get_text()
 				self.storeSeriesFileName(txt, pagecode)
 		print("Successfully mapped series ids to names.")
 				
-	
 	def storeSeriesFileName(self, text, pagecode):
 		d = self.seriesName
 		reader = csv.reader(text.splitlines())
 		title = next(reader)
 		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3, 'ei':5}
+		
 		for line in reader:
 			newl = ''
 			for string in line:
@@ -104,6 +97,7 @@ class BlsReader:
 		d = self.masterDict
 		reader = csv.reader(text.splitlines())
 		title = next(reader)
+		
 		for row in reader:
 			x = row[0].split()
 			name = x[0]
@@ -116,4 +110,3 @@ class BlsReader:
 				else:
 					d[name] = {}
 					d[name][month + '/' + year] = float(value)
-

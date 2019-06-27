@@ -3,8 +3,6 @@ from BlsReader import BlsReader
 from AlphaVantageReader import AlphaVantageReader
 import datetime
 
-
-
 class MasterDataCollection:
 	'''
 	Class contains methods that can collect all SupplyMaven pricing data
@@ -15,11 +13,13 @@ class MasterDataCollection:
 	
 	def collectBls(self, pagecodes):
 		bls = BlsReader()
+
 		for pagecode in pagecodes:
 			bls.storePriceInfo(pagecode) 
 			bls.mapSeriesToName(pagecode)
 		self.MasterPrices.update(bls.masterDict)
 		self.CodeToNames.update(bls.seriesName)
+
 	def collectAllBls(self):
 		bls = BlsReader()
 		for pagecode in ['wp', 'pc', 'cu', 'ap', 'ei']:
@@ -41,20 +41,22 @@ class MasterDataCollection:
 		self.CodeToNames.update(av.MasterAVNamesSM)
 
 	def cleanData(self):
-		#WE WANT AT LEAST 6 years of continuous recent data
+		'''
+		Function ensures that for every piece of data in the master prices
+		dictionary, there is at least 6 years of continuous recent data.
+		'''
 		print('CLEANING DATA...')
 		data = self.MasterPrices
 		names = self.CodeToNames
 		new = {}
 		newnames = {}
 		missing_data = set()
+
 		for i in data:
 			dates = list(data[i].keys())
 			if self.isRecent(dates):
 				new[i] = data[i]
 				newnames[i] = names[i]
-		
-		#update master dictionary
 		self.MasterPrices = new
 		self.CodeToNames = newnames
 		print('DATA CLEANED!')
@@ -72,6 +74,7 @@ class MasterDataCollection:
 		seriesDate = datetime.date(seriesYear, seriesMonth, seriesDay)
 		#make sure first date is within 3 months of current date
 		difference = (now - seriesDate).days
+		
 		if difference > 100:
 			return False
 		else:
@@ -85,13 +88,12 @@ class MasterDataCollection:
 				nextyear = int(dates[i][3:])
 				lastyear = int(dates[i+1][3:])
 				difference = 12*(nextyear - lastyear) + nextmonth - lastmonth
+				
 				if difference != 1:
 					return False
 				elif counter == 72:
 					return True
+		
 		if counter < 72:
 			return False
 		return True
-
-		
-

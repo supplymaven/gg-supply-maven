@@ -1,8 +1,6 @@
 import quandl
 import datetime
 
-
-
 class QuandlReader:
 	
 	def __init__(self):
@@ -12,7 +10,6 @@ class QuandlReader:
 		quandl.ApiConfig.api_key = 'd-LyarSr8s9xzyQ7qoqG'
 		self.now = datetime.datetime.now()
 		self.funcKeys = {'QuandlGold': self.getGold, 'QuandlWTICrude': self.getWtiCrudeOil}
-		#the available commodities maps the global id to local id
 		self.availableCommodities = {'QuandlGold': 'Gold', 'QuandlWTICrude':'WTI Crude Oil'}
 
 	def getGold(self):
@@ -44,7 +41,6 @@ class QuandlReader:
 			final[fin] = float(series[s])
 		return final
 
-
 	def getData(self, commodities):
 		'''
 		Given a list of commodities, this function selects which data to collect from Quandl.
@@ -53,5 +49,3 @@ class QuandlReader:
 		for asset in commodities:
 			toReturn[asset] = self.funcKeys[asset]()
 		return toReturn
-
-

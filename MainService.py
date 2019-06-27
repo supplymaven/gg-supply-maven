@@ -25,8 +25,7 @@ class MainService:
 		the correlator with that data.
 		'''
 		print('Updating all data...')
-		# self.MasterData.collectAllBls()
-		self.MasterData.collectBls(['pc'])
+		self.MasterData.collectAllBls()
 		self.MasterData.cleanData()
 		self.MasterData.collectAllQuandl()
 		self.MasterData.collectAllAlphaVantage()
@@ -53,7 +52,6 @@ class MainService:
 		print('Data Collection Succesful.')
 		print('TimeSeries dictionary has ' + str(len(self.MasterData.MasterPrices)) + ' entries.')
 		print('Initializing correlator with updated data')
-
 		self.correlator = CorrelationFinder(self.MasterData.MasterPrices)
 
 	def queryNames(self, word):
@@ -74,7 +72,6 @@ class MainService:
 						if adjustment in word:
 							matches.add(names[Id])
 							break
-
 		return matches
 
 	def getIdFromName(self, series_title):
@@ -125,7 +122,6 @@ class MainService:
 		'''
 		with open(filename,"w") as f:
 			json.dump(self.MasterData.MasterPrices, f)
-
 
 	def saveIdsToFile(self, filename):
 		with open(filename, "w") as f:
