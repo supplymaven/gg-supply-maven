@@ -1,5 +1,7 @@
 from MasterDataCollection import MasterDataCollection
 from CorrelationFInder import CorrelationFinder
+from sklearn.linear_model import LinearRegression
+import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import json
@@ -88,30 +90,43 @@ class MainService:
 		return self.MasterData.CodeToNames[Id]
 
 	def findFiveHighestCorrelated(self, series_title, varied_ind = False):
-    
-	    #Find the id
+	    '''
+	    Finds the five highest correlated assets and returns them in a list of tuples
+	    with Id in index 0 and correlation value in index 1
+	    '''
 	    Id = self.getIdFromName(series_title)
 	    return self.correlator.best_correlations(Id, varied_ind)
 
-	def plotTimeSeries(self, Ids):
+	def plotTimeSeries(self, Ids, plot = True):
 		'''
 		Given a list of series_IDs, this function will plot their time series
-		on a time graph.
+		on a time graph. If plot specified False, will return just the plot object
+		and not show the graph
 		'''
 		for Id in Ids:
 			x = list(self.MasterData.MasterPrices[Id].keys())
 			newx = []
 			for date in x:
-				newmonth = int(date[:2])
-				newyear = int(date[3:])
-				newday = 1
-				newdate = datetime.date(year = newyear, month = newmonth, day = newday)
-				newx.append(newdate)
+				newx.append(self.convertToDateTime(date))
 			y = list(self.MasterData.MasterPrices[Id].values())
 			plt.plot_date(newx,y, linestyle = 'solid', marker = None, 
 				label = self.getNameFromId(Id))
-		plt.legend(loc = 'upper left')
-		plt.show()
+		if plot:
+			plt.legend(loc = 'upper left')
+			plt.show()
+		else:
+			return plt
+
+	def convertToDateTime(self, stringDate):
+		'''
+		Returns DateTime version of a stringDate
+		'''
+		newmonth = int(stringDate[:2])
+		newyear = int(stringDate[3:])
+		newday = 1
+		newdate = datetime.date(year = newyear, month = newmonth, day = newday)
+		return newdate
+
 
 	def updateMonthlyData(self):
 		raise NotImplementedError
@@ -126,3 +141,46 @@ class MainService:
 	def saveIdsToFile(self, filename):
 		with open(filename, "w") as f:
 			json.dump(self.MasterData.CodeToNames, f)
+
+	def linearRegress(self, Id, plot = False):
+		'''
+		Calculates and returns intercept and coefficient as a tuple
+		with intercept in index 0 and coeff in the other. Provides option
+		to plot.
+		'''
+		prices = self.MasterData.MasterPrices
+		series = prices[Id]
+		months = []
+		values = []
+		datetimes = []
+		x = []
+		d = 0
+		continuous = m.MasterData.isContinuous(Id)
+		if continuous == 'Continuous':
+			for date in list(series.keys()):
+				months.append([d])
+				datetimes.append(self.convertToDateTime(date))
+				values.append(series[date])
+				d += 1
+		#Not continuous and we have to truncate data to last date
+		else:
+			append = False
+			for date in list(series.keys()):
+				if date == continuous:
+					append = True
+				if append:
+					months.append([d])
+					datetimes.append(self.convertToDateTime(date))
+					values.append(series[date])
+					d += 1
+		model = LinearRegression()
+		model.fit(months, values)
+		x = np.array(range(len(datetimes)))
+		y = model.intercept_ + model.coef_*x
+		if plot:
+			plot = self.plotTimeSeries([Id], False)
+			plot.plot_date(datetimes,list(y), linestyle = 'solid', marker = None,
+				label = 'Linear Regression Line')
+			plot.legend(loc = 'upper left')
+			plot.show()
+		return (model.intercept_, model.coef_[0])

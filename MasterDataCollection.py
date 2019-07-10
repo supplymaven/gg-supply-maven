@@ -13,7 +13,6 @@ class MasterDataCollection:
 	
 	def collectBls(self, pagecodes):
 		bls = BlsReader()
-
 		for pagecode in pagecodes:
 			bls.storePriceInfo(pagecode) 
 			bls.mapSeriesToName(pagecode)
@@ -97,3 +96,21 @@ class MasterDataCollection:
 		if counter < 72:
 			return False
 		return True
+
+	def isContinuous(self, Id):
+		'''
+		determines if every date in a monthly commodity is exactly one month ahead 
+		of and behind its adjacent dates. If not, it returns the latest continous date.
+		Otherwise, returns 'Continous'
+		'''
+		dates = list(self.MasterPrices[Id].keys())
+		dates.reverse()
+		for i in range(len(dates)-1):
+			nextmonth = int(dates[i][:2])
+			lastmonth = int(dates[i+1][:2])
+			nextyear = int(dates[i][3:])
+			lastyear = int(dates[i+1][3:])
+			difference = 12*(nextyear - lastyear) + nextmonth - lastmonth
+			if difference != 1:
+				return dates[i]
+		return 'Continuous'

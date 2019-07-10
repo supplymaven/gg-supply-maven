@@ -25,7 +25,9 @@ class AlphaVantageReader:
 			newdate = month + '/' + year
 			Equity[newdate] = float(series[date]['4. close'])
 		finalEquity = {}
-		for key in sorted(Equity.keys(), reverse = False):
+		keys = list(Equity.keys())
+		keys.reverse()
+		for key in keys:
 			finalEquity[key] = Equity[key]
 		return finalEquity
 
