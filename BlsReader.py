@@ -60,8 +60,7 @@ class BlsReader:
 		d = self.seriesName
 		reader = csv.reader(text.splitlines())
 		title = next(reader)
-		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3, 'ei':5}
-		
+		pcSeriesIndex = {'cu': 7, 'wp': 5, 'pc':5, 'ap': 3, 'ei':5, 'cw': 7}
 		for line in reader:
 			newl = ''
 			for string in line:
@@ -110,3 +109,5 @@ class BlsReader:
 				else:
 					d[name] = {}
 					d[name][month + '/' + year] = float(value)
+
+

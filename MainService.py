@@ -1,5 +1,5 @@
 from MasterDataCollection import MasterDataCollection
-from CorrelationFInder import CorrelationFinder
+from CorrelationFinder import CorrelationFinder
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
