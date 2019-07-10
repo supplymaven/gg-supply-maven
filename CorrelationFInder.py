@@ -172,17 +172,17 @@ class CorrelationFinder:
 					ind = Id[3:6]
 					corr = correlations[Id]
 					if corr != 'Missing Data':
-						if abs(corr) > bestcorr:
+						if abs(corr) > abs(bestcorr):
 							if ind not in inds:
-								bestcorr = correlations[Id]
+								bestcorr = corr
 								best_series = Id
 								inds.add(ind)
 				elif Id not in f_ids:
 					corr = correlations[Id]
 					if corr != 'Missing Data':
-						if abs(corr) > bestcorr:
-							bestcorr = correlations[Id]
+						if abs(corr) > abs(bestcorr):
+							bestcorr = corr
 							best_series = Id
-			found.append((best_series,bestcorr))
+			found.append((best_series, bestcorr))
 			f_ids.add(best_series)
 		return found

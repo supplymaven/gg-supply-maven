@@ -70,7 +70,7 @@ class MasterDataCollection:
 		now = datetime.date.today()
 		seriesMonth = int(dates[0][:2])
 		seriesYear = int(dates[0][3:])
-		seriesDay = now.day
+		seriesDay = 1
 		seriesDate = datetime.date(seriesYear, seriesMonth, seriesDay)
 		#make sure first date is within 3 months of current date
 		difference = (now - seriesDate).days
