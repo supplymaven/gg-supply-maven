@@ -8,6 +8,9 @@ numpy.seterr(invalid='ignore')
 class CorrelationFinder:
 	
 	def __init__(self, data):
+		'''
+		initialize correlation finder
+		'''
 		self.prices = data
 
 	def gen_return_vector(self, commodity, start_month, end_month):
