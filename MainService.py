@@ -155,7 +155,7 @@ class MainService:
 		datetimes = []
 		x = []
 		d = 0
-		continuous = m.MasterData.isContinuous(Id)
+		continuous = self.MasterData.isContinuous(Id)
 		if continuous == 'Continuous':
 			for date in list(series.keys()):
 				months.append([d])
