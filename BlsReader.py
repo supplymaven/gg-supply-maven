@@ -109,5 +109,3 @@ class BlsReader:
 				else:
 					d[name] = {}
 					d[name][month + '/' + year] = float(value)
-
-
