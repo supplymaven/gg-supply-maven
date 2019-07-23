@@ -49,16 +49,49 @@ class FredReader:
 			series[newdate] = value
 		self.allTimeSeries[Id] = series
 
+	def getCategoryName(self, categoryId):
+		base = 'https://api.stlouisfed.org/fred/category?category_id='
+		api_key = '&api_key=' + self.apikey
+		file_type = '&file_type=json'
+		url = base + str(categoryId) + api_key + file_type
+		response = requests.get(url)
+		dataDict = json.loads(response.text)
+		return dataDict['categories'][0]['name']
 
-	
-    
+	def getCategoryChildren(self, categoryId):
+		base = 'https://api.stlouisfed.org/fred/category/children?category_id='
+		api_key = '&api_key=' + self.apikey
+		file_type = '&file_type=json'
+		url = base + str(categoryId) + api_key + file_type
+		response = requests.get(url)
+		dataDict = json.loads(response.text)
+		categories = dataDict['categories']
+		children = []
+		for category in categories:
+			Id = category['id']
+			name = category['name']
+			parent_id = category['parent_id']
+			children.append((Id, name))
+		return children
+				
+			
 
-
-
+	def getSeriesForCategory(self, categoryId):
+		base = 'https://api.stlouisfed.org/fred/category/series?category_id='
+		api_key = '&api_key=' + self.apikey
+		file_type = '&file_type=json'
+		url = base + str(categoryId) + api_key + file_type
+		response = requests.get(url)
+		dataDict = json.loads(response.text)
+		return dataDict
 
 f = FredReader()
-search_text = 'crude oil'
-I = f.storeTimeSeries('M0104CUSM349NNBR')
-print(f.allTimeSeries)
+# for i in range(100):
+# 	print(i, f.getCategoryName(i))
+# series = f.getSeriesForCategory(0)
+# print(series)
+# f.getCategoryName(32991)
+series = f.getCategoryChildren()
+print(series)
 
 
