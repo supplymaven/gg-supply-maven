@@ -1,5 +1,11 @@
 # gg-supply-maven
 
+**Installation**  
+1.) Clone the repository.    
+2.) Cd into folder where you saved the repository.  
+3.) Run "pip install -r requirements.txt" from your terminal.  
+4.) Once this successfully completes, you should be able to run all the code.  
+
 **File Overview:**     
 1.) Data Collection 
 * AlphaVantageReader.py: Reads data from [AlphaVantage](https://www.alphavantage.co/)
