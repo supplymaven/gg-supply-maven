@@ -1,5 +1,7 @@
 import requests
 import json
+import time
+from fred import Fred
 
 class FredReader:
 
@@ -39,7 +41,17 @@ class FredReader:
 		file_type = '&file_type=json'
 		frequency = '&frequency=m'
 		url = base + Id + api_key + file_type + frequency
-		response = requests.get(url)
+		TRY = True
+		while TRY:
+			response = requests.get(url)
+			if response.status_code == 200:
+				TRY = False
+			elif response.status_code == 429:
+				time.sleep(.5)
+			else:
+				TRY = False
+				print('could not store Id: ' + str(Id) + ' error code ' + str(response.status_code))
+				raise KeyError
 		dataDict = json.loads(response.text)
 		observations = dataDict['observations']
 		for observation in observations:
@@ -49,6 +61,9 @@ class FredReader:
 			series[newdate] = value
 		self.allTimeSeries[Id] = series
 
+	def storeName(self, Id, name):
+		self.allNames[Id] = name
+
 	def getCategoryName(self, categoryId):
 		base = 'https://api.stlouisfed.org/fred/category?category_id='
 		api_key = '&api_key=' + self.apikey
@@ -57,6 +72,7 @@ class FredReader:
 		response = requests.get(url)
 		dataDict = json.loads(response.text)
 		return dataDict['categories'][0]['name']
+
 
 	def getCategoryChildren(self, categoryId):
 		base = 'https://api.stlouisfed.org/fred/category/children?category_id='
@@ -73,25 +89,68 @@ class FredReader:
 			parent_id = category['parent_id']
 			children.append((Id, name))
 		return children
-				
-			
 
 	def getSeriesForCategory(self, categoryId):
 		base = 'https://api.stlouisfed.org/fred/category/series?category_id='
 		api_key = '&api_key=' + self.apikey
 		file_type = '&file_type=json'
 		url = base + str(categoryId) + api_key + file_type
-		response = requests.get(url)
-		dataDict = json.loads(response.text)
-		return dataDict
+		TRY = True
+		while TRY:
+			counter = 0
+			time.sleep(.5)
+			print('trying to get series for category: ' + str(categoryId))
+			try:
+				response = requests.get(url)
+				print(response)
+				dataDict = json.loads(response.text)
+				return dataDict['seriess']
+			except:
+				TRY = True
+				counter +=	1
+				if counter > 10:
+					TRY = False
+		return []
 
-f = FredReader()
-# for i in range(100):
-# 	print(i, f.getCategoryName(i))
-# series = f.getSeriesForCategory(0)
-# print(series)
-# f.getCategoryName(32991)
-series = f.getCategoryChildren()
-print(series)
+
+	def storeDesiredSeries(self):
+		'''
+		stores all the series that should be stored from the FRED database
+		'''
+		for category in [2, 104, 12,11]:
+			children = self.getCategoryChildren(category)
+		for cat in [33509, 33731]:
+			children.append((cat, None))
+		for category2 in children:
+			seriess = self.getSeriesForCategory(category2[0])
+			for series in seriess:
+				frequency = series['frequency']
+				if frequency == 'Monthly':
+					Id = series['id']
+					name = series['title']
+					self.storeName(Id,name)
+
+	def storeAllObservations(self):
+		'''
+		store all desired names to a master observations dictionary
+		'''
+		with open('FREDdata/allNames.json', 'r') as f:
+			names = f.read()
+			masterNames = json.loads(names)
+		self.allNames = {}
+		for Id in masterNames:
+			name = masterNames[Id]
+			try:
+				self.storeTimeSeries(Id)
+				self.storeName(Id, name)
+			except:
+				print('could not store Id: ' + Id)
+			
+
+	def saveNamesToJson(self,filename):
+		with open(filename, "w") as f:
+			json.dump(self.allNames, f)
+							
+
 
 

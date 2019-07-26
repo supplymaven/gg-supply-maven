@@ -1,6 +1,7 @@
 from QuandlReader import QuandlReader
 from BlsReader import BlsReader
 from AlphaVantageReader import AlphaVantageReader
+from FredReader import FredReader
 import datetime
 
 class MasterDataCollection:
@@ -38,6 +39,13 @@ class MasterDataCollection:
 		indices = av.getMajorIndicesMonthly()
 		self.MasterPrices.update(indices)
 		self.CodeToNames.update(av.MasterAVNamesSM)
+
+	def collectAllFred(self):
+		fr = FredReader()
+		fr.storeDesiredSeries()
+		fr.storeAllObservations()
+		self.MasterPrices.update(fr.allTimeSeries)
+		self.CodeToNames.update(fr.allNames)
 
 	def cleanData(self):
 		'''
