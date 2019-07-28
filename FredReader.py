@@ -1,7 +1,6 @@
 import requests
 import json
 import time
-from fred import Fred
 
 class FredReader:
 
@@ -134,19 +133,16 @@ class FredReader:
 		'''
 		store all desired names to a master observations dictionary
 		'''
-		with open('FREDdata/allNames.json', 'r') as f:
-			names = f.read()
-			masterNames = json.loads(names)
-		self.allNames = {}
-		for Id in masterNames:
-			name = masterNames[Id]
+		time.sleep(3)
+		print('storing all observations')
+		for Id in self.AllNames:
+			name = self.AllNames[Id]
 			try:
 				self.storeTimeSeries(Id)
 				self.storeName(Id, name)
 			except:
 				print('could not store Id: ' + Id)
 			
-
 	def saveNamesToJson(self,filename):
 		with open(filename, "w") as f:
 			json.dump(self.allNames, f)
