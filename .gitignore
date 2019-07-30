@@ -5,3 +5,14 @@ __pycache__
 
 .ipynb_checkpoints/
 
+FlaskApp.pyc
+
+MasterDataCollection.pyc
+
+QuandlReader.pyc
+
+BlsReader.pyc
+
+FRED.ipynb
+
+CSV_data/
