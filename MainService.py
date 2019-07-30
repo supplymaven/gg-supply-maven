@@ -4,6 +4,7 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
+import pymysql
 import matplotlib.pyplot as plt
 import datetime
 import csv
@@ -60,7 +61,7 @@ class MainService:
 		self.correlator = CorrelationFinder(self.MasterData.MasterPrices)
 
 	def makeSmallDatabase(self):
-		print('Making Small Database')
+		print('Making Small Database...')
 		self.MasterData.collectBls(['ei'])
 		self.MasterData.cleanData()
 		self.MasterData.collectAllQuandl()
@@ -196,6 +197,47 @@ class MainService:
 		    	rowDict['Series Id'] = Id
 		    	rowDict['Series Title'] = names[Id]
 		    	writer.writerow(rowDict)
+	
+	def connectToSqlServer(self):
+		host = "sql9.freemysqlhosting.net"
+		username = "sql9300254"
+		password = "tlXYYYFzAF"
+		database = "sql9300254"
+		db = pymysql.connect(host, username, password, database)
+		cursor = db.cursor()
+		return (db, cursor)
+
+	def updateSqlDB(self):
+		
+		db, cursor = self.connectToSqlServer()
+		#DELETE OLD OBSERVATION TABLE IF IT EXISTS
+		try:
+			cursor.execute('DROP TABLE Observations;')
+		except:
+			print("Observation table doesn't exist")
+		cursor.execute('CREATE TABLE Observations (ID VARCHAR(255), MONTH VARCHAR(255), VALUE VARCHAR(255) );')
+		try:
+			cursor.execute('DROP TABLE Names;')
+		except:
+			print("Observation table doesn't exist")
+		cursor.execute('CREATE TABLE Names (ID VARCHAR(255), TITLE VARCHAR(255));')
+		name_data = []
+		for Id in self.MasterData.CodeToNames:
+			title = self.MasterData.CodeToNames[Id]
+			name_data.append((Id,title))
+		sql = "INSERT INTO Names (ID, TITLE) VALUES (%s,%s)"
+		cursor.executemany(sql, name_data)
+		
+		observation_data = []
+		for Id in self.MasterData.MasterPrices:
+			prices = self.MasterData.MasterPrices[Id]
+			for date in prices:
+				value = prices[date]
+				observation_data.append((Id,date,value))
+
+		sql = "INSERT INTO Observations (ID, MONTH, VALUE) VALUES (%s,%s,%s)"
+		cursor.executemany(sql, observation_data)
+		db.commit()
 
 
 	def linearRegress(self, Id, plot = False):
