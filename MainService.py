@@ -2,8 +2,11 @@ from MasterDataCollection import MasterDataCollection
 from CorrelationFinder import CorrelationFinder
 from sklearn.linear_model import LinearRegression
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import datetime
+import csv
 import json
 
 class MainService:
@@ -54,6 +57,14 @@ class MainService:
 		print('Data Collection Succesful.')
 		print('TimeSeries dictionary has ' + str(len(self.MasterData.MasterPrices)) + ' entries.')
 		print('Initializing correlator with updated data')
+		self.correlator = CorrelationFinder(self.MasterData.MasterPrices)
+
+	def makeSmallDatabase(self):
+		print('Making Small Database')
+		self.MasterData.collectBls(['ei'])
+		self.MasterData.cleanData()
+		self.MasterData.collectAllQuandl()
+		self.MasterData.collectAllAlphaVantage()
 		self.correlator = CorrelationFinder(self.MasterData.MasterPrices)
 
 	def queryNames(self, word):
@@ -127,9 +138,16 @@ class MainService:
 		newdate = datetime.date(year = newyear, month = newmonth, day = newday)
 		return newdate
 
-
+	def getDate(self):
+		'''
+		return utc time and date
+		'''
+		return datetime.datetime.today()
+	
 	def updateMonthlyData(self):
 		raise NotImplementedError
+
+
 
 	def saveTimeSeriesToFile(self, filename):
 		'''
@@ -141,6 +159,44 @@ class MainService:
 	def saveIdsToFile(self, filename):
 		with open(filename, "w") as f:
 			json.dump(self.MasterData.CodeToNames, f)
+
+	def saveTimeSeriesToCsv(self, filename = None):
+		'''
+		once desired information is stored, given a filename save the master database to a CSV file.
+		'''
+		prices = self.MasterData.MasterPrices
+		date = str(self.getDate())[5:10]
+		if filename == None:
+			filename = "CSV_data/EntireDatabase" + "-" + date + ".csv"
+		csv_columns = ['Series Id', 'Date', 'Value']
+		with open(filename, "w") as csvfile:
+		    writer = csv.DictWriter(csvfile, fieldnames = csv_columns)
+		    writer.writeheader()
+		    for Id in prices:
+		        timeseries = prices[Id]
+		        for date in timeseries:
+		            rowDict = {}
+		            rowDict['Series Id'] = Id
+		            rowDict['Date'] = date
+		            rowDict['Value'] = timeseries[date]
+		            writer.writerow(rowDict)
+		        #NEED TO SEND TO SQL FILE
+	
+	def saveNameDictToCsv(self, filename = None):
+		names = self.MasterData.CodeToNames
+		date = str(self.getDate())[5:10]
+		if filename == None:
+			filename = "CSV_data/EntireNameDatabase" + "-" + date + ".csv"
+		csv_columns = ['Series Id', 'Series Title']
+		with open(filename, "w") as csvfile:
+		    writer = csv.DictWriter(csvfile, fieldnames = csv_columns)
+		    writer.writeheader()
+		    for Id in names:
+		    	rowDict = {}
+		    	rowDict['Series Id'] = Id
+		    	rowDict['Series Title'] = names[Id]
+		    	writer.writerow(rowDict)
+
 
 	def linearRegress(self, Id, plot = False):
 		'''
