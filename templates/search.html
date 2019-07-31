@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>About Flask</title>
+  </head>
+  <body>
+    {% extends "template.html" %}
+    {% block content %}
+    
+    <h1> Search For Titles </h1>
+    
+    <form method="POST" action="/search">
+      <input type="text" name= "Search Names">
+      <input type="submit" value="Add">
+    </form>
+      
+    {% endblock %}
+  </body>
+</html>

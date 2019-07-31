@@ -68,6 +68,22 @@ class MainService:
 		self.MasterData.collectAllAlphaVantage()
 		self.correlator = CorrelationFinder(self.MasterData.MasterPrices)
 
+	def querySqlNames(self, word):
+		'''
+		Given a string argument, this queries the sql database for titles containing the given text.
+		Returns a set of tuples with ID in index 0 and title in index 1
+		'''
+		adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing']
+		db, cursor = self.connectToSqlServer()
+		query = "SELECT * FROM Names WHERE TITLE LIKE %s;"
+		final = set()
+		for adjustment in adjustments:
+			search = '%' + adjustment + '%'
+			cursor.execute(query, search)
+			matches = set(cursor.fetchall())
+			final.update(matches)
+		return final
+
 	def queryNames(self, word):
 		'''
     	Returns set of names likely to be relevant to the user
@@ -148,8 +164,6 @@ class MainService:
 	def updateMonthlyData(self):
 		raise NotImplementedError
 
-
-
 	def saveTimeSeriesToFile(self, filename):
 		'''
 		Once desired information is stored, save the master database to a file.
@@ -199,18 +213,24 @@ class MainService:
 		    	writer.writerow(rowDict)
 	
 	def connectToSqlServer(self):
-		host = "sql9.freemysqlhosting.net"
-		username = "sql9300254"
-		password = "tlXYYYFzAF"
-		database = "sql9300254"
+		host = "remotemysql.com"
+		username = "JJCJ3FtEYC"
+		password = "x8g8zouU4u"
+		database = "JJCJ3FtEYC"
+
+		# host = "localhost:3306"
+		# username = "ggordon"
+		# password = "BL$138575"
+		# database = "SM_Data"
 		db = pymysql.connect(host, username, password, database)
+		print('Succesful SQL connection.')
 		cursor = db.cursor()
 		return (db, cursor)
 
 	def updateSqlDB(self):
 		
 		db, cursor = self.connectToSqlServer()
-		#DELETE OLD OBSERVATION TABLE IF IT EXISTS
+		#DELETE OLD TABLES IF THEY EXIST
 		try:
 			cursor.execute('DROP TABLE Observations;')
 		except:
@@ -238,6 +258,7 @@ class MainService:
 		sql = "INSERT INTO Observations (ID, MONTH, VALUE) VALUES (%s,%s,%s)"
 		cursor.executemany(sql, observation_data)
 		db.commit()
+		print('SQL Database Successfully Updated.')
 
 
 	def linearRegress(self, Id, plot = False):
