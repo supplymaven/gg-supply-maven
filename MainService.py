@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import datetime
 import csv
 import json
+import pygal
 
 class MainService:
 	'''
@@ -77,12 +78,28 @@ class MainService:
 		db, cursor = self.connectToSqlServer()
 		query = "SELECT * FROM Names WHERE TITLE LIKE %s;"
 		final = set()
+		adjs = []
 		for adjustment in adjustments:
 			search = '%' + adjustment + '%'
 			cursor.execute(query, search)
 			matches = set(cursor.fetchall())
 			final.update(matches)
 		return final
+
+	def getHistoricalData(self, Id):
+		db, cursor = self.connectToSqlServer()
+		cursor.execute("SELECT MONTH, VALUE FROM Observations WHERE ID = %s", Id)
+		results = cursor.fetchall()
+		dates = []
+		values = []
+		for tup in results:
+			dates.append(tup[0])
+			values.append(float(tup[1]))
+		graph = pygal.Line()
+		graph.title = 'Value of ' + Id + ' over time.'
+		graph.x_labels = dates
+		graph.add(Id, values)
+		return graph.render_data_uri()
 
 	def queryNames(self, word):
 		'''
@@ -218,8 +235,8 @@ class MainService:
 		password = "x8g8zouU4u"
 		database = "JJCJ3FtEYC"
 
-		# host = "localhost:3306"
-		# username = "ggordon"
+		# host = "74.208.137.51"
+		# username = "root"
 		# password = "BL$138575"
 		# database = "SM_Data"
 		db = pymysql.connect(host, username, password, database)
@@ -303,3 +320,4 @@ class MainService:
 			plot.legend(loc = 'upper left')
 			plot.show()
 		return (model.intercept_, model.coef_[0])
+

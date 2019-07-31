@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from MainService import MainService
 from flask import request
 
+
 app = Flask(__name__)
 
 # db = SQLAlchemy(app)
@@ -14,7 +15,7 @@ app = Flask(__name__)
 
 # print(Observations.columns.keys())
 
-
+m = MainService()
 
 @app.route('/')
 def home():
@@ -26,14 +27,23 @@ def about():
  
 @app.route('/search', methods=["GET", "POST"])
 def search():
+	response = {}
 	if request.form:
-		m = MainService()
-		db, cursor = m.connectToSqlServer()
 		query = request.form.get('Search Names')
-		return query
+		results = m.querySqlNames(query)
+		for tup in results:
+			response[tup[0]] = tup[1]
+	return render_template('search.html', nameDict = response)
 
-	return render_template('search.html')
+@app.route('/historical_graph<Id>')
+def historical_graph(Id):
+	data = m.getHistoricalData(Id)
+	return render_template('historical_graph.html', graph_data = data)
+
+	# return render_template('historical_graph.html', graph_data = data)
+	
 
 
 if __name__ == '__main__':
 	app.run(debug=True)
+
