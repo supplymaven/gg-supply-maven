@@ -128,6 +128,7 @@ class FredReader:
 					Id = series['id']
 					name = series['title']
 					self.storeName(Id,name)
+		print('FRED names stored.')
 
 	def storeAllObservations(self):
 		'''
@@ -135,13 +136,13 @@ class FredReader:
 		'''
 		time.sleep(3)
 		print('storing all observations')
-		for Id in self.AllNames:
-			name = self.AllNames[Id]
+		for Id in self.allNames:
+			name = self.allNames[Id]
 			try:
 				self.storeTimeSeries(Id)
-				self.storeName(Id, name)
 			except:
 				print('could not store Id: ' + Id)
+		print('FRED observations stored.')
 			
 	def saveNamesToJson(self,filename):
 		with open(filename, "w") as f:

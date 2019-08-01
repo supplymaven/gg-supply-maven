@@ -1,4 +1,4 @@
 from MainService import MainService
 m = MainService()
-m.makeSmallDatabase()
+m.updateAllData()
 m.updateSqlDB()

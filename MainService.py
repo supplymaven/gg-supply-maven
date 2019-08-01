@@ -33,6 +33,7 @@ class MainService:
 		'''
 		print('Updating all data...')
 		self.MasterData.collectAllBls()
+		self.MasterData.collectAllFred()
 		self.MasterData.cleanData()
 		self.MasterData.collectAllQuandl()
 		self.MasterData.collectAllAlphaVantage()
@@ -74,7 +75,7 @@ class MainService:
 		Given a string argument, this queries the sql database for titles containing the given text.
 		Returns a set of tuples with ID in index 0 and title in index 1
 		'''
-		adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing']
+		adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing', word[:-1]]
 		db, cursor = self.connectToSqlServer()
 		query = "SELECT * FROM Names WHERE TITLE LIKE %s;"
 		final = set()
@@ -230,23 +231,21 @@ class MainService:
 		    	writer.writerow(rowDict)
 	
 	def connectToSqlServer(self):
-		host = "remotemysql.com"
-		username = "JJCJ3FtEYC"
-		password = "x8g8zouU4u"
-		database = "JJCJ3FtEYC"
-
-		# host = "74.208.137.51"
-		# username = "root"
-		# password = "BL$138575"
-		# database = "SM_Data"
+		host = "127.0.0.1"
+		username = "ggordon"
+		password = "BL$138575"
+		database = "SM_Data"
 		db = pymysql.connect(host, username, password, database)
 		print('Succesful SQL connection.')
 		cursor = db.cursor()
 		return (db, cursor)
 
 	def updateSqlDB(self):
-		
-		db, cursor = self.connectToSqlServer()
+		try:
+			db, cursor = self.connectToSqlServer()
+		except:
+
+			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
 		#DELETE OLD TABLES IF THEY EXIST
 		try:
 			cursor.execute('DROP TABLE Observations;')
