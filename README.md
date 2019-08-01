@@ -12,6 +12,8 @@
 * BlsReader.py: Scrapes data from text files published by the [Bureau of Labor Statistics](https://www.bls.gov/)
 * QuandlReader.py: Reads data from [Quandl](https://www.quandl.com/)
 * MasterDataCollection.py: Has methods to get all data from all sources.
+* SQLsetup.py: Run this function file from command line to remotely access the plesk database. To get a successful connection, you must run a ssh connection at the same time on your localhost. Go to command line and run the command "ssh root@74.208.137.51 -L 3306:127.0.0.1:3306 -N". When prompted, put in the password "Om80Ox55g8"
+
 
 2.) Prediction Model
 * CorrelationFInder.py: For a pricing dictionary, this service finds the correlation between any one commodity and every   
@@ -36,7 +38,7 @@ other commodity in the dictionary. Also has a method to find the top 5 highest c
 * plotTimeSeries: given a list of ids, this returns a plot of all their timeseries data.  
 * saveTimeSeriesToFile: given the string name of the desired title for a filename, this saves the stored database of timeseries data to a json file in your current directory.  
 * saveIdsToFile:  given the string name of the desired title for a filename, this saves the stored database of ids mapped to their names to a json file in your current directory.  
-* linearRegress: given and Id, this performs a regression on the ID and returns the coefficient and intercept for that regression line. If in the arguments, you put plot = True, it will plot each id along with its regression line.
+* linearRegress: given and Id, this performs a regression on the ID and returns the coefficient and intercept for that regression line. If in the arguments, you put plot = True, it will plot each id along with its regression line.  
 
 
     
