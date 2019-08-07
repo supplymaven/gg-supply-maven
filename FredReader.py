@@ -116,6 +116,7 @@ class FredReader:
 		'''
 		stores all the series that should be stored from the FRED database
 		'''
+		print("Storing desired FRED Ids.")
 		for category in [2, 104, 12,11]:
 			children = self.getCategoryChildren(category)
 		for cat in [33509, 33731]:
@@ -135,7 +136,7 @@ class FredReader:
 		store all desired names to a master observations dictionary
 		'''
 		time.sleep(3)
-		print('storing all observations')
+		print('Storing desired FRED observations.')
 		for Id in self.allNames:
 			name = self.allNames[Id]
 			try:

@@ -6,15 +6,6 @@ from flask import request
 
 app = Flask(__name__)
 
-# db = SQLAlchemy(app)
-# engine = db.create_engine('mysql://JJCJ3FtEYC:x8g8zouU4u@remotemysql.com/JJCJ3FtEYC')
-# connection = engine.connect()
-# metadata = db.MetaData()
-# Observations = db.Table('Observations', metadata, autoload = True, autoload_with = engine)
-# Names = db.Table('Names', metadata, autoload = True, autoload_with = engine)
-
-# print(Observations.columns.keys())
-
 m = MainService()
 
 @app.route('/')
@@ -41,6 +32,10 @@ def historical_graph(Id):
 	return render_template('historical_graph.html', graph_data = data)
 
 	# return render_template('historical_graph.html', graph_data = data)
+
+@app.route('/highest_correlations<Id>')
+def highest_correlations(Id):
+	return Id
 	
 
 

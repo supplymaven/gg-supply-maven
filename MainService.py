@@ -24,7 +24,7 @@ class MainService:
 		is updated.
 		'''
 		self.MasterData = MasterDataCollection()
-		self.correlator = None
+		self.correlator = CorrelationFinder(None)
 	
 	def updateAllData(self):
 		'''
@@ -135,12 +135,16 @@ class MainService:
 	def getNameFromId(self, Id):
 		return self.MasterData.CodeToNames[Id]
 
-	def findFiveHighestCorrelated(self, series_title, varied_ind = False):
+	def findFiveHighestCorrelatedSql(self, Id, varied_ind = False):
+		db, cursor = self.connectToSqlServer()
+		self.correlator.getSqlData(cursor)
+		return self.correlator.best_correlations(Id, varied_ind)
+
+	def findFiveHighestCorrelated(self, Id, varied_ind = False):
 	    '''
 	    Finds the five highest correlated assets and returns them in a list of tuples
 	    with Id in index 0 and correlation value in index 1
 	    '''
-	    Id = self.getIdFromName(series_title)
 	    return self.correlator.best_correlations(Id, varied_ind)
 
 	def plotTimeSeries(self, Ids, plot = True):
@@ -240,11 +244,62 @@ class MainService:
 		cursor = db.cursor()
 		return (db, cursor)
 
+	def createTable(self, name, columns):
+		'''
+		Creates a table in SQL given a table namd and list of column titles
+		'''
+		try:
+			db,cursor = self.connectToSqlServer()
+		except:
+			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
+		cols = ' ('
+		for col in columns:
+			add = ' ' + col + ' VARCHAR(255),'
+			cols += add
+		cols = cols[:-1]
+		cols += ')'
+		sql = 'CREATE TABLE '  + name + cols + ';'
+		cursor.execute(sql)
+		db.commit()
+
+	def insertIntoTable(self, name, columns, values):
+		'''
+		given name of table, name of columns, and values, this executes an insert into command
+		'''
+		try:
+			db,cursor = self.connectToSqlServer()
+		except:
+			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
+		vals = '('
+		for val in values:
+			vals += '%s,'
+		vals = vals[:-1]
+		vals += ')'
+		cols = '('
+		for col in columns:
+			cols += col + ','
+		cols = cols[:-1]
+		cols += ')'
+		command = 'INSERT INTO ' + name + ' ' + cols + ' VALUES ' +  vals + ';'
+		cursor.execute(command, tuple(values))
+		db.commit()
+
+	def dropTable(self, name):
+		'''
+		given the name of a current table, drops that table.
+		'''
+		try:
+			db,cursor = self.connectToSqlServer()
+		except:
+			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
+		command = "DROP TABLE IF EXISTS " + name + ";"
+		cursor.execute(command)
+		db.commit()
+		
 	def updateSqlDB(self):
 		try:
 			db, cursor = self.connectToSqlServer()
 		except:
-
 			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
 		#DELETE OLD TABLES IF THEY EXIST
 		try:

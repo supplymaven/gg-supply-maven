@@ -15,6 +15,10 @@ class CorrelationFinder:
 		'''
 		self.prices = data
 
+	def getSqlData(self, cursor):
+		self.prices = {}
+		cursor.execute('SELECT ID, MONTH, VALUE FROM Observations')
+
 	def gen_return_vector(self, commodity, start_month, end_month):
 		'''
 		Decides if bls data or not and runs appropriate function
