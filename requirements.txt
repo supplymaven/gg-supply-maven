@@ -1,6 +1,9 @@
 matplotlib==2.2.4
-numpy==1.16.3
 Quandl==3.4.8
+Flask==0.12.1
+numpy==1.16.3
+PyMySQL==0.9.3
 requests==2.22.0
 beautifulsoup4==4.8.0
+pygal==2.4.0
 scikit_learn==0.20

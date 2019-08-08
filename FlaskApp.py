@@ -1,5 +1,4 @@
 from flask import Flask, escape, request, render_template
-from flask_sqlalchemy import SQLAlchemy
 from MainService import MainService
 from flask import request
 

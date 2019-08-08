@@ -264,12 +264,8 @@ class MainService:
 
 	def insertIntoTable(self, name, columns, values):
 		'''
-		given name of table, name of columns, and values, this executes an insert into command
+		given name of table, name of columns, and values, this writes an insert into command
 		'''
-		try:
-			db,cursor = self.connectToSqlServer()
-		except:
-			raise ConnectionRefusedError("CONNECTION FAILED. CHECK SSH SOCKET IS OPEN")
 		vals = '('
 		for val in values:
 			vals += '%s,'
@@ -281,8 +277,8 @@ class MainService:
 		cols = cols[:-1]
 		cols += ')'
 		command = 'INSERT INTO ' + name + ' ' + cols + ' VALUES ' +  vals + ';'
-		cursor.execute(command, tuple(values))
-		db.commit()
+		return command
+		
 
 	def dropTable(self, name):
 		'''
