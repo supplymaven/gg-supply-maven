@@ -1,0 +1,26 @@
+ <!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <body class="body">
+      <div class="container" align="left">
+        <embed type="image/svg+xml" src={{graph_data|safe}} style='max-width:1000px'/>
+      </div>
+      <table border="2">
+      <tr>
+        <th>Series Id</th>
+        <th>Series Title</th>
+        <th>Series Correlation Value</th>
+      </tr>
+      	<tr>
+      		<td>{{ Id }}</td>
+      		<td>{{ Title }}</td>
+      		<td> - </td>
+      	</tr>
+      {% for i in range(5) %}
+        <tr>
+          <td>{{ Ids[i] }}</td>
+          <td>{{ Titles[i] }}</td>
+          <td>{{ Vals[i]}}</td>
+        </tr>
+      {% endfor %}
+     </table>
+  </body>

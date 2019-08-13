@@ -75,7 +75,10 @@ class MainService:
 		Given a string argument, this queries the sql database for titles containing the given text.
 		Returns a set of tuples with ID in index 0 and title in index 1
 		'''
-		adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing', word[:-1]]
+		if len(word) > 5:
+			adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing', word[:-1]]
+		else:
+			adjustments = [word, word.lower(), word.lower() + 's', word.capitalize(), word.capitalize() + 's', word[:-1] + 'ing']
 		db, cursor = self.connectToSqlServer()
 		query = "SELECT * FROM Names WHERE TITLE LIKE %s;"
 		final = set()
@@ -87,8 +90,9 @@ class MainService:
 			final.update(matches)
 		return final
 
-	def getHistoricalData(self, Id):
-		db, cursor = self.connectToSqlServer()
+	def getHistoricalData(self, Id, cursor = None, db = None):
+		if cursor == None:
+			db, cursor = self.connectToSqlServer()
 		cursor.execute("SELECT MONTH, VALUE FROM Observations WHERE ID = %s", Id)
 		results = cursor.fetchall()
 		dates = []
@@ -96,11 +100,14 @@ class MainService:
 		for tup in results:
 			dates.append(tup[0])
 			values.append(float(tup[1]))
-		graph = pygal.Line()
-		graph.title = 'Value of ' + Id + ' over time.'
-		graph.x_labels = dates
-		graph.add(Id, values)
-		return graph.render_data_uri()
+		return dates, values
+
+	def getHighestCorrelatedIds(self, Id, db = None, cursor = None):
+		if cursor == None:
+			db, cursor = self.connectToSqlServer()
+		cursor.execute("SELECT * FROM HighestCorrelations WHERE Id = %s", Id)
+		result = cursor.fetchall()
+		return result
 
 	def queryNames(self, word):
 		'''
@@ -135,6 +142,13 @@ class MainService:
 	def getNameFromId(self, Id):
 		return self.MasterData.CodeToNames[Id]
 
+	def getNameFromIdSql(self, Id, db = None, cursor = None):
+		if cursor == None:
+			db,cursor = self.connectToSqlServer()
+		cursor.execute("SELECT TITLE FROM Names WHERE ID = %s", Id)
+		return cursor.fetchone()[0]
+
+
 	def findFiveHighestCorrelatedSql(self, Id, varied_ind = False):
 		db, cursor = self.connectToSqlServer()
 		self.correlator.getSqlData(cursor)
@@ -166,6 +180,31 @@ class MainService:
 			plt.show()
 		else:
 			return plt
+
+	def plotForFlaskCorrelations(self, Id, db = None, cursor = None):
+		if cursor == None:
+			db, cursor = self.connectToSqlServer()
+		corrInfo = list(self.getHighestCorrelatedIds(Id, db = db, cursor = cursor)[0])
+		graphData= []
+		Ids = []
+		vals = []
+		for i in range(len(corrInfo)):
+		    if i in [0,1,3,5,7,9]:
+		        Ids.append(corrInfo[i])
+		    else:
+		        vals.append(corrInfo[i])
+		graph = pygal.DateLine(x_label_rotation=35, legend_at_bottom = True)
+		graph.title = 'Highest TimeSeries Correlations with Id ' + Id
+		for Id in Ids:
+			d, values = self.getHistoricalData(Id, db = db, cursor = cursor)
+			dates = []
+			for date in d:
+				dates.append(self.convertToDateTime(date))
+			to_add = []
+			for i in range(len(dates)):
+				to_add.append((dates[i], values[i]))
+			graph.add(Id, to_add)
+		return graph, Ids[1:], vals
 
 	def convertToDateTime(self, stringDate):
 		'''
@@ -370,4 +409,3 @@ class MainService:
 			plot.legend(loc = 'upper left')
 			plot.show()
 		return (model.intercept_, model.coef_[0])
-

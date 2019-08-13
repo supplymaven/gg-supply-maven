@@ -167,12 +167,10 @@ class CorrelationFinder:
 		inds = {ind1}
 		found = []
 		correlations = {}
-
 		for id2 in self.prices:
 			if id2 != series_id:
 				corr = self.asset_correlation(series_id, id2)
 				correlations[id2] = corr
-		
 		while len(found) < 5:
 			bestcorr = 0
 			best_series = str()
