@@ -1,5 +1,5 @@
 matplotlib==2.2.4
-numpy==1.16.3
+numpy==1.22.0
 Quandl==3.4.8
 requests==2.22.0
 beautifulsoup4==4.8.0
